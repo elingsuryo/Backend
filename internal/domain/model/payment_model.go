@@ -33,20 +33,22 @@ type PaymentCallbackRequest struct {
 	ExternalID         string  `json:"external_id"`
 	UserID             string  `json:"user_id"`
 	IsHigh             bool    `json:"is_high"`
-	PaymentMethod      string  `json:"payment_method"`
+	PaymentMethod      *string `json:"payment_method,omitempty"`
 	Status             string  `json:"status"`
 	MerchantName       string  `json:"merchant_name"`
 	Amount             int     `json:"amount"`
 	BankCode           *string `json:"bank_code,omitempty"`
 	PaidAmount         int     `json:"paid_amount"`
-	PaidAt             string  `json:"paid_at"`
-	PayerEmail         string  `json:"payer_email"`
+	PaidAt             *string `json:"paid_at,omitempty"`
+	PayerEmail         *string `json:"payer_email,omitempty"`
 	Description        string  `json:"description"`
 	Created            string  `json:"created"`
 	Updated            string  `json:"updated"`
-	Currency           string  `json:"currency"`
-	PaymentChannel     string  `json:"payment_channel"`
-	PaymentDestination string  `json:"payment_destination"`
+	Currency           *string `json:"currency,omitempty"`
+	PaymentChannel     *string `json:"payment_channel,omitempty"`
+	PaymentDestination *string `json:"payment_destination,omitempty"`
+	SuccessRedirectURL *string `json:"success_redirect_url,omitempty"`
+	FailedRedirectURL  *string `json:"failed_redirect_url,omitempty"`
 }
 
 type PaymentCallbackResponse struct {

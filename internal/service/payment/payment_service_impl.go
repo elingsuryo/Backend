@@ -119,7 +119,7 @@ func (s *PaymentServiceImpl) Callback(ctx context.Context, request *model.Paymen
 
 	updatePayment := &model.PaymentUpdateRequest{
 		ID:     dataPayment.ID,
-		Method: request.PaymentMethod,
+		Method: *request.PaymentMethod,
 		Status: model.PaymentStatus(request.Status),
 	}
 
