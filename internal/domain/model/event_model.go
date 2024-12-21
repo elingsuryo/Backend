@@ -37,8 +37,8 @@ type GetEventRequest struct {
 }
 
 type EventsRequest struct {
-	Page  int    `query:"page" validate:"numeric"`
-	Size  int    `query:"size" validate:"numeric"`
+	Page  int    `query:"page" validate:"numeric,omitempty,gte=1"`
+	Size  int    `query:"size" validate:"numeric,omitempty,gte=1,lte=100"`
 	Sort  string `query:"sort" validate:"omitempty,oneof=id name description date time venue_id created_at updated_at"`
 	Order string `query:"order" validate:"omitempty"`
 }
@@ -49,8 +49,8 @@ type EventSearchRequest struct {
 	Date        string `query:"date" validate:"omitempty,datetime=2006-01-02"`
 	Time        string `query:"time" validate:"omitempty,datetime=15:04:05"`
 	VenueID     uint   `query:"venue_id" validate:"omitempty"`
-	Page        int    `query:"page" validate:"numeric"`
-	Size        int    `query:"size" validate:"numeric"`
+	Page        int    `query:"page" validate:"numeric,omitempty,gte=1"`
+	Size        int    `query:"size" validate:"numeric,omitempty,gte=1,lte=100"`
 	Sort        string `query:"sort" validate:"omitempty,oneof=id name description date time venue_id created_at updated_at"`
 	Order       string `query:"order" validate:"omitempty"`
 }

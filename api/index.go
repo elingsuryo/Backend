@@ -17,7 +17,7 @@ func Handler(w http.ResponseWriter, r *http.Request) {
 	validate := config.NewValidator()
 	xendit := config.NewXendit(viper)
 	app, log := config.NewEcho()
-
+	gomail := config.NewGomail(viper, log)
 	err := config.Bootstrap(&config.BootstrapConfig{
 		DB:       db,
 		Cache:    redis,
@@ -27,6 +27,7 @@ func Handler(w http.ResponseWriter, r *http.Request) {
 		JWT:      jwt,
 		Viper:    viper,
 		Xendit:   xendit,
+		Gomail:   gomail,
 	})
 	if err != nil {
 		log.Fatalf("Failed to bootstrap application: %v", err)

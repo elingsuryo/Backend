@@ -36,6 +36,19 @@ type PageMetadata struct {
 	TotalPages int `json:"totalPages"`
 }
 
+type PaymentResponse struct {
+	ID      int     `json:"id"`
+	OrderID int     `json:"orderId"`
+	Amount  float64 `json:"amount"`
+	Status  string  `json:"status"`
+}
+
+type PaymentsResponse struct {
+	Data   []*PaymentResponse `json:"data,omitempty"`
+	Paging *PageMetadata      `json:"paging,omitempty"`
+	Error  *Error             `json:"error,omitempty"`
+}
+
 type Query struct {
 }
 

@@ -6,6 +6,7 @@ package resolvers
 
 import (
 	"context"
+	"fmt"
 	"time"
 
 	"github.com/TrinityKnights/Backend/internal/delivery/graph"
@@ -590,6 +591,21 @@ func (r *queryResolver) SearchVenues(ctx context.Context, name *string, address 
 		Data:   *paginated.Data,
 		Paging: (*graphmodel.PageMetadata)(paginated.Paging),
 	}, nil
+}
+
+// Payment is the resolver for the payment field.
+func (r *queryResolver) Payment(ctx context.Context, id int) (*graphmodel.PaymentResponse, error) {
+	panic("not implemented")
+}
+
+// Payments is the resolver for the payments field.
+func (r *queryResolver) Payments(ctx context.Context, page *int, size *int, sort *string, order *string) (*graphmodel.PaymentsResponse, error) {
+	panic(fmt.Errorf("not implemented: Payments - payments"))
+}
+
+// SearchPayments is the resolver for the searchPayments field.
+func (r *queryResolver) SearchPayments(ctx context.Context, id *int, orderID *int, amount *float64, status *string, page *int, size *int, sort *string, order *string) (*graphmodel.PaymentsResponse, error) {
+	panic(fmt.Errorf("not implemented: SearchPayments - searchPayments"))
 }
 
 // CreatedAt is the resolver for the createdAt field.

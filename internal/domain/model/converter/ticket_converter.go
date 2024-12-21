@@ -6,6 +6,21 @@ import (
 	"github.com/TrinityKnights/Backend/pkg/helper"
 )
 
+func ticketOrderToResponse(order *entity.Order, eventID *uint) *model.OrderResponse {
+	if order == nil || order.ID == 0 {
+		return nil
+	}
+
+	quantity := 1
+	return &model.OrderResponse{
+		ID:         order.ID,
+		EventID:    eventID,
+		UserID:     order.UserID,
+		Quantity:   &quantity,
+		TotalPrice: &order.TotalPrice,
+	}
+}
+
 func TicketEntityToResponse(ticket *entity.Ticket) *model.TicketResponse {
 	return &model.TicketResponse{
 		ID:         ticket.ID,
@@ -15,7 +30,7 @@ func TicketEntityToResponse(ticket *entity.Ticket) *model.TicketResponse {
 		Type:       ticket.Type,
 		SeatNumber: ticket.SeatNumber,
 		Event:      EventEntityToResponse(&ticket.Event),
-		Order:      OrderEntityToResponse(&ticket.Order),
+		Order:      ticketOrderToResponse(&ticket.Order, &ticket.EventID),
 	}
 }
 
@@ -29,7 +44,17 @@ func TicketsToResponses(tickets []*entity.Ticket) []*model.TicketResponse {
 
 func TicketsToPaginatedResponse(tickets []*entity.Ticket, totalItems int64, page, size int) *model.Response[[]*model.TicketResponse] {
 	ticketsResponse := TicketsToResponses(tickets)
-	totalPages := (int(totalItems) + size - 1) / size
+
+	if len(tickets) > 0 && tickets[0].Metadata != nil {
+		if total, ok := tickets[0].Metadata["total_count"].(int64); ok {
+			totalItems = total
+		}
+	}
+
+	totalPages := 1
+	if size > 0 {
+		totalPages = (int(totalItems) + size - 1) / size
+	}
 
 	return model.NewResponse(ticketsResponse, &model.PageMetadata{
 		Page:       page,

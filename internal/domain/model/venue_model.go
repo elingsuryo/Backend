@@ -34,8 +34,8 @@ type GetVenueRequest struct {
 }
 
 type VenuesRequest struct {
-	Page  int    `query:"page" validate:"numeric"`
-	Size  int    `query:"size" validate:"numeric"`
+	Page  int    `query:"page" validate:"numeric,min=1"`
+	Size  int    `query:"size" validate:"numeric,min=1,max=100"`
 	Sort  string `query:"sort" validate:"omitempty,oneof=id name address capacity city state zip created_at updated_at"`
 	Order string `query:"order" validate:"omitempty"`
 }
@@ -47,8 +47,8 @@ type VenueSearchRequest struct {
 	City     string `query:"city" validate:"omitempty,lte=100"`
 	State    string `query:"state" validate:"omitempty,lte=100"`
 	Zip      string `query:"zip" validate:"omitempty,lte=10"`
-	Page     int    `query:"page" validate:"numeric"`
-	Size     int    `query:"size" validate:"numeric"`
+	Page     int    `query:"page" validate:"numeric,min=1"`
+	Size     int    `query:"size" validate:"numeric,min=1,max=100"`
 	Sort     string `query:"sort" validate:"omitempty,oneof=id name address capacity city state zip created_at updated_at"`
 	Order    string `query:"order" validate:"omitempty"`
 }

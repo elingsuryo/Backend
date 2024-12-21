@@ -1,6 +1,8 @@
 package route
 
 import (
+	"net/http"
+
 	graphql "github.com/TrinityKnights/Backend/internal/delivery/graph/handler"
 	"github.com/TrinityKnights/Backend/internal/delivery/http/handler/event"
 	"github.com/TrinityKnights/Backend/internal/delivery/http/handler/order"
@@ -8,6 +10,7 @@ import (
 	"github.com/TrinityKnights/Backend/internal/delivery/http/handler/ticket"
 	"github.com/TrinityKnights/Backend/internal/delivery/http/handler/user"
 	"github.com/TrinityKnights/Backend/internal/delivery/http/handler/venue"
+	"github.com/TrinityKnights/Backend/internal/domain/model"
 	"github.com/TrinityKnights/Backend/pkg/route"
 	"github.com/labstack/echo/v4"
 	swagger "github.com/swaggo/echo-swagger"
@@ -118,43 +121,43 @@ func (c Config) PrivateRoute() []route.Route {
 			Method:  echo.POST,
 			Path:    "/venues",
 			Handler: c.VenueHandler.CreateVenue,
-			Roles:   []string{"buyer", "admin"},
+			Roles:   []string{"admin"},
 		},
 		{
 			Method:  echo.GET,
 			Path:    "/venues",
 			Handler: c.VenueHandler.GetAllVenues,
-			Roles:   []string{"buyer", "admin"},
+			Roles:   []string{"admin"},
 		},
 		{
 			Method:  echo.GET,
 			Path:    "/venues/:id",
 			Handler: c.VenueHandler.GetVenueByID,
-			Roles:   []string{"buyer", "admin"},
+			Roles:   []string{"admin"},
 		},
 		{
 			Method:  echo.PUT,
 			Path:    "/venues/:id",
 			Handler: c.VenueHandler.UpdateVenue,
-			Roles:   []string{"buyer", "admin"},
+			Roles:   []string{"admin"},
 		},
 		{
 			Method:  echo.GET,
 			Path:    "/venues/search",
 			Handler: c.VenueHandler.SearchVenues,
-			Roles:   []string{"buyer", "admin"},
+			Roles:   []string{"admin"},
 		},
 		{
 			Method:  echo.POST,
 			Path:    "/events",
 			Handler: c.EventHandler.CreateEvent,
-			Roles:   []string{"buyer", "admin"},
+			Roles:   []string{"admin"},
 		},
 		{
 			Method:  echo.PUT,
 			Path:    "/events/:id",
 			Handler: c.EventHandler.UpdateEvent,
-			Roles:   []string{"buyer", "admin"},
+			Roles:   []string{"admin"},
 		},
 		{
 			Method:  echo.POST,
@@ -178,13 +181,31 @@ func (c Config) PrivateRoute() []route.Route {
 			Method:  echo.POST,
 			Path:    "/tickets",
 			Handler: c.TicketHandler.CreateTicket,
-			Roles:   []string{"buyer", "admin"},
+			Roles:   []string{"admin"},
 		},
 		{
 			Method:  echo.PUT,
 			Path:    "/tickets/:id",
 			Handler: c.TicketHandler.UpdateTicket,
-			Roles:   []string{"buyer", "admin"},
+			Roles:   []string{"admin"},
+		},
+		{
+			Method:  echo.GET,
+			Path:    "/payment/:id",
+			Handler: c.PaymentHandler.GetPaymentByID,
+			Roles:   []string{"admin"},
+		},
+		{
+			Method:  echo.GET,
+			Path:    "/payment",
+			Handler: c.PaymentHandler.GetPayments,
+			Roles:   []string{"admin"},
+		},
+		{
+			Method:  echo.GET,
+			Path:    "/payment/search",
+			Handler: c.PaymentHandler.SearchPayments,
+			Roles:   []string{"admin"},
 		},
 	}
 }
@@ -194,5 +215,11 @@ func (c Config) SwaggerRoutes() {
 
 	c.App.GET("/", func(ctx echo.Context) error {
 		return ctx.Redirect(301, "/swagger/index.html")
+	})
+}
+
+func (c Config) NotFoundRoute() {
+	c.App.Any("*", func(ctx echo.Context) error {
+		return ctx.JSON(http.StatusNotFound, model.NewErrorResponse[any](http.StatusNotFound, "Route not found"))
 	})
 }

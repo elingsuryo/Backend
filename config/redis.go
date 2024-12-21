@@ -3,15 +3,12 @@ package config
 import (
 	"context"
 	"fmt"
+
 	cache "github.com/TrinityKnights/Backend/pkg/cache"
 	"github.com/redis/go-redis/v9"
 	"github.com/sirupsen/logrus"
 	"github.com/spf13/viper"
 )
-
-type RedisConfig struct {
-	client *cache.ImplCache
-}
 
 // NewRedisClient creates a new redis client
 func NewRedisClient(viper *viper.Viper, log *logrus.Logger) *cache.ImplCache {

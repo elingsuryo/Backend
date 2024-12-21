@@ -1,6 +1,8 @@
 package ticket
 
 import (
+	"fmt"
+
 	"github.com/TrinityKnights/Backend/internal/domain/entity"
 	"github.com/TrinityKnights/Backend/internal/domain/model"
 	"github.com/TrinityKnights/Backend/internal/repository"
@@ -25,19 +27,74 @@ func (r *TicketRepositoryImpl) CreateBatch(db *gorm.DB, tickets []*entity.Ticket
 }
 
 func (r *TicketRepositoryImpl) Find(db *gorm.DB, opts *model.TicketQueryOptions) ([]*entity.Ticket, error) {
-	query := db.Model(&entity.Ticket{})
+	// First, get total count
+	var totalCount int64
+	countQuery := db.Model(&entity.Ticket{})
 
+	// Apply filters to count query
+	if opts.ID != nil {
+		countQuery = countQuery.Where("UPPER(id) = UPPER(?)", *opts.ID)
+	}
+	if opts.EventID != nil {
+		countQuery = countQuery.Where("event_id = ?", *opts.EventID)
+	}
+	if opts.OrderID != nil {
+		countQuery = countQuery.Where("order_id = ?", *opts.OrderID)
+	}
+	if opts.Price != nil {
+		countQuery = countQuery.Where("price = ?", *opts.Price)
+	}
+	if opts.SeatNumbers != nil && len(*opts.SeatNumbers) > 0 {
+		countQuery = countQuery.Where("UPPER(seat_number) IN (?)", *opts.SeatNumbers)
+	}
+
+	if err := countQuery.Count(&totalCount).Error; err != nil {
+		return nil, err
+	}
+
+	// Main query with preloads
+	query := db.Model(&entity.Ticket{}).
+		Preload("Event").
+		Preload("Order")
+
+	// Apply same filters to main query
+	if opts.ID != nil {
+		query = query.Where("UPPER(id) = UPPER(?)", *opts.ID)
+	}
 	if opts.EventID != nil {
 		query = query.Where("event_id = ?", *opts.EventID)
 	}
+	if opts.OrderID != nil {
+		query = query.Where("order_id = ?", *opts.OrderID)
+	}
+	if opts.Price != nil {
+		query = query.Where("price = ?", *opts.Price)
+	}
+	if opts.SeatNumbers != nil && len(*opts.SeatNumbers) > 0 {
+		query = query.Where("UPPER(seat_number) IN (?)", *opts.SeatNumbers)
+	}
 
-	if len(opts.SeatNumbers) > 0 {
-		query = query.Where("seat_number IN (?)", opts.SeatNumbers)
+	// Apply pagination
+	if opts.Page > 0 && opts.Size > 0 {
+		offset := (opts.Page - 1) * opts.Size
+		query = query.Offset(offset).Limit(opts.Size)
+	}
+
+	// Apply sorting
+	if opts.Sort != "" && opts.Order != "" {
+		query = query.Order(fmt.Sprintf("%s %s", opts.Sort, opts.Order))
 	}
 
 	var tickets []*entity.Ticket
 	if err := query.Find(&tickets).Error; err != nil {
 		return nil, err
+	}
+
+	// Store total count in the first ticket's metadata (if any tickets exist)
+	if len(tickets) > 0 {
+		tickets[0].Metadata = map[string]interface{}{
+			"total_count": totalCount,
+		}
 	}
 
 	return tickets, nil

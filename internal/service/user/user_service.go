@@ -12,7 +12,7 @@ type UserService interface {
 	Profile(ctx context.Context) (*model.UserResponse, error)
 	Update(ctx context.Context, request *model.UpdateRequest) (*model.UserResponse, error)					
 	RefreshToken(ctx context.Context, request *model.RefreshTokenRequest) (*model.TokenResponse, error)
-	RequestReset(ctx context.Context, request *model.RequestReset) (*model.ResponseReset, error)
-	ResetPassword(ctx context.Context, request *model.ResetPassword) (*model.ResponseReset, error)
-	VerifyEmail(ctx context.Context, request *model.VerifyEmail) (*model.ResponseReset, error)
+	RequestReset(ctx context.Context, request *model.ReqResetPasswordRequest) (*model.VerifyResponse, error)
+	ResetPassword(ctx context.Context, request *model.ResetPasswordRequest) (*model.VerifyResponse, error)
+	VerifyEmail(ctx context.Context, request *model.VerifyRequest) (*model.VerifyResponse, error)
 }

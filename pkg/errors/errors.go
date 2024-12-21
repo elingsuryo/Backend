@@ -13,4 +13,5 @@ var (
 	ErrInvalidCredentials = errors.New("invalid credentials")
 	ErrSeatAlreadyTaken   = errors.New("seat is already taken")
 	ErrInvalidAmount      = errors.New("invalid payment amount")
+	ErrEmailAlreadyExists = errors.New("email already exists")
 )

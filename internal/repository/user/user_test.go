@@ -32,18 +32,36 @@ func TestRepositoryImpl_Create(t *testing.T) {
 
 	// Define expected user
 	expectedUser := &entity.User{
-		ID:       "123",
-		Email:    "test@example.com",
-		Password: "hashedpassword",
-		Name:     "Test User",
-		Role:     "admin",
-		Status:   true,
+		ID:                 "123",
+		Email:              "test@example.com",
+		Password:           "hashedpassword",
+		Name:               "Test User",
+		Role:               "admin",
+		Status:             true,
+		LastLogin:          nil,
+		VerifyEmailToken:   "",
+		IsVerified:         false,
+		ResetPasswordToken: "",
 	}
 
 	// Mock the query for Create
 	mock.ExpectBegin()
-	mock.ExpectExec(regexp.QuoteMeta("INSERT INTO `users` (`id`,`email`,`password`,`name`,`role`,`status`,`created_at`,`updated_at`,`deleted_at`) VALUES (?,?,?,?,?,?,?,?,?)")).
-		WithArgs(expectedUser.ID, expectedUser.Email, expectedUser.Password, expectedUser.Name, expectedUser.Role, expectedUser.Status, sqlmock.AnyArg(), sqlmock.AnyArg(), nil).
+	mock.ExpectExec(regexp.QuoteMeta("INSERT INTO `users` (`id`,`email`,`password`,`name`,`role`,`status`,`last_login`,`verify_email_token`,`reset_password_token`,`is_verified`,`created_at`,`updated_at`,`deleted_at`) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?)")).
+		WithArgs(
+			expectedUser.ID,
+			expectedUser.Email,
+			expectedUser.Password,
+			expectedUser.Name,
+			expectedUser.Role,
+			expectedUser.Status,
+			expectedUser.LastLogin,
+			expectedUser.VerifyEmailToken,
+			expectedUser.ResetPasswordToken,
+			expectedUser.IsVerified,
+			sqlmock.AnyArg(),
+			sqlmock.AnyArg(),
+			nil,
+		).
 		WillReturnResult(sqlmock.NewResult(1, 1))
 	mock.ExpectCommit()
 
@@ -73,18 +91,36 @@ func TestRepositoryImpl_Update(t *testing.T) {
 
 	// Define expected user
 	expectedUser := &entity.User{
-		ID:       "123",
-		Email:    "test@example.com",
-		Password: "hashedpassword",
-		Name:     "Test User",
-		Role:     "admin",
-		Status:   true,
+		ID:                 "123",
+		Email:              "test@example.com",
+		Password:           "hashedpassword",
+		Name:               "Test User",
+		Role:               "admin",
+		Status:             true,
+		LastLogin:          nil,
+		VerifyEmailToken:   "",
+		IsVerified:         false,
+		ResetPasswordToken: "",
 	}
 
 	// Mock the query for Update
 	mock.ExpectBegin()
-	mock.ExpectExec(regexp.QuoteMeta("UPDATE `users` SET `email`=?,`password`=?,`name`=?,`role`=?,`status`=?,`created_at`=?,`updated_at`=?,`deleted_at`=? WHERE `users`.`deleted_at` IS NULL AND `id` = ?")).
-		WithArgs(expectedUser.Email, expectedUser.Password, expectedUser.Name, expectedUser.Role, expectedUser.Status, sqlmock.AnyArg(), sqlmock.AnyArg(), nil, expectedUser.ID).
+	mock.ExpectExec(regexp.QuoteMeta("UPDATE `users` SET `email`=?,`password`=?,`name`=?,`role`=?,`status`=?,`last_login`=?,`verify_email_token`=?,`reset_password_token`=?,`is_verified`=?,`created_at`=?,`updated_at`=?,`deleted_at`=? WHERE `users`.`deleted_at` IS NULL AND `id` = ?")).
+		WithArgs(
+			expectedUser.Email,
+			expectedUser.Password,
+			expectedUser.Name,
+			expectedUser.Role,
+			expectedUser.Status,
+			expectedUser.LastLogin,
+			expectedUser.VerifyEmailToken,
+			expectedUser.ResetPasswordToken,
+			expectedUser.IsVerified,
+			sqlmock.AnyArg(),
+			sqlmock.AnyArg(),
+			nil,
+			expectedUser.ID,
+		).
 		WillReturnResult(sqlmock.NewResult(1, 1))
 	mock.ExpectCommit()
 

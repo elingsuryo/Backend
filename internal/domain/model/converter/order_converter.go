@@ -7,18 +7,30 @@ import (
 )
 
 func OrderEntityToResponse(order *entity.Order) *model.OrderResponse {
-	response := &model.OrderResponse{
-		ID:         order.ID,
-		UserID:     order.UserID,
-		TotalPrice: order.TotalPrice,
-		Quantity:   len(order.Tickets),
+	if order == nil {
+		return nil
 	}
 
+	quantity := len(order.Tickets)
+	eventID := uint(0)
 	if len(order.Tickets) > 0 {
-		response.Tickets = make([]model.TicketResponse, len(order.Tickets))
-		for i := range order.Tickets {
-			ticket := &order.Tickets[i]
-			response.Tickets[i] = model.TicketResponse{
+		eventID = order.Tickets[0].EventID
+	}
+
+	response := &model.OrderResponse{
+		ID:         order.ID,
+		EventID:    &eventID,
+		UserID:     order.UserID,
+		Quantity:   &quantity,
+		TotalPrice: &order.TotalPrice,
+		Date:       helper.FormatDate(order.Date),
+	}
+
+	// Only add tickets if they exist
+	if len(order.Tickets) > 0 {
+		tickets := make([]model.TicketResponse, len(order.Tickets))
+		for i, ticket := range order.Tickets {
+			tickets[i] = model.TicketResponse{
 				ID:         ticket.ID,
 				EventID:    ticket.EventID,
 				OrderID:    helper.UintOrZero(ticket.OrderID),
@@ -26,21 +38,8 @@ func OrderEntityToResponse(order *entity.Order) *model.OrderResponse {
 				Type:       ticket.Type,
 				SeatNumber: ticket.SeatNumber,
 			}
-			if i == 0 {
-				response.EventID = ticket.EventID
-			}
 		}
-	}
-
-	// Add payment information if available
-	if order.Payment != nil {
-		response.Payment = &model.PaymentResponse{
-			ID:         order.Payment.ID,
-			OrderID:    order.Payment.OrderID,
-			Amount:     order.Payment.Amount,
-			Status:     string(order.Payment.Status),
-			PaymentURL: order.Payment.TransactionID,
-		}
+		response.Tickets = &tickets
 	}
 
 	return response

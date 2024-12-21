@@ -123,6 +123,19 @@ input UpdateTicketInput {
   seatNumber: String
 }
 
+type PaymentResponse {
+  id: Int!
+  orderId: Int!
+  amount: Float!
+  status: String!
+}
+
+type PaymentsResponse {
+  data: [PaymentResponse!]
+  paging: PageMetadata
+  error: Error
+}
+
 type Query {
   # Public queries
   # Event queries
@@ -164,6 +177,20 @@ type Query {
     sort: String
     order: String
   ): VenuesResponse! @auth
+
+  # Payment queries
+  payment(id: Int!): PaymentResponse! @auth
+  payments(page: Int = 1, size: Int = 10, sort: String, order: String): PaymentsResponse! @auth
+  searchPayments(
+    id: Int
+    orderId: Int
+    amount: Float
+    status: String
+    page: Int = 1
+    size: Int = 10
+    sort: String
+    order: String
+  ): PaymentsResponse! @auth
 }
 
 type Mutation {

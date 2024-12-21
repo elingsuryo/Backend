@@ -43,8 +43,8 @@ func (c *Config) BuildRoutes() {
 	// Private routes with auth and rbac middleware
 	privateGroup := g.Group("", c.AuthMiddleware)
 	for _, r := range c.Routes.PrivateRoute() {
-		middleware := rbac.RBACMiddleware(r.Roles)
-		privateGroup.Add(r.Method, r.Path, middleware(r.Handler))
+		rbacMiddleware := rbac.RBACMiddleware(r.Roles)
+		privateGroup.Add(r.Method, r.Path, rbacMiddleware(r.Handler))
 	}
 
 	// GraphQL routes
@@ -55,4 +55,7 @@ func (c *Config) BuildRoutes() {
 
 	// Swagger routes
 	c.Routes.SwaggerRoutes()
+
+	// Not found route
+	c.Routes.NotFoundRoute()
 }

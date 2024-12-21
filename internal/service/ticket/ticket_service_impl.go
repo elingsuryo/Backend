@@ -145,33 +145,35 @@ func (s *TicketServiceImpl) GetTicketByID(ctx context.Context, request *model.Ge
 	}
 
 	key := fmt.Sprintf("ticket:get:id:%s", request.ID)
-	var data *model.TicketResponse
-	err := s.Cache.Get(key, &data)
-	if err != nil && !errors.Is(err, cache.ErrCacheMiss) {
-		s.Log.Errorf("failed to get cache: %v", err)
+	var cacheResponse *model.TicketResponse
+	if err := s.Cache.Get(key, &cacheResponse); err == nil {
+		return cacheResponse, nil
 	}
 
-	if data == nil {
-		tx := s.DB.WithContext(ctx)
-		defer tx.Rollback()
+	tx := s.DB.WithContext(ctx)
 
-		ticketData := &entity.Ticket{}
-		if _, err := s.TicketRepository.Find(tx, &model.TicketQueryOptions{
-			ID: &request.ID,
-		}); err != nil {
+	t, err := s.TicketRepository.Find(tx.Preload("Order"), &model.TicketQueryOptions{
+		ID: &request.ID,
+	})
+	if err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
 			return nil, domainErrors.ErrNotFound
 		}
-
-		response := converter.TicketEntityToResponse(ticketData)
-
-		if err := s.Cache.Set(key, response, 5*time.Minute); err != nil {
-			s.Log.Errorf("failed to set cache: %v", err)
-		}
-
-		return response, nil
+		s.Log.Errorf("failed to get ticket: %v", err)
+		return nil, domainErrors.ErrInternalServer
 	}
 
-	return data, nil
+	if len(t) == 0 {
+		return nil, domainErrors.ErrNotFound
+	}
+
+	response := converter.TicketEntityToResponse(t[0])
+
+	if err := s.Cache.Set(key, response, 5*time.Minute); err != nil {
+		s.Log.Errorf("failed to set cache: %v", err)
+	}
+
+	return response, nil
 }
 
 func (s *TicketServiceImpl) GetTickets(ctx context.Context, request *model.TicketsRequest) (*model.Response[[]*model.TicketResponse], error) {
@@ -277,7 +279,7 @@ func (s *TicketServiceImpl) SearchTickets(ctx context.Context, request *model.Ti
 		opts.Type = &ticketType
 	}
 	if request.SeatNumber != "" {
-		opts.SeatNumbers = []string{request.SeatNumber}
+		opts.SeatNumbers = &[]string{request.SeatNumber}
 	}
 
 	db := s.DB.WithContext(ctx)

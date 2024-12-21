@@ -1,25 +1,24 @@
 package config
 
 import (
+	g "github.com/TrinityKnights/Backend/pkg/gomail"
+	"github.com/sirupsen/logrus"
 	"github.com/spf13/viper"
 	"gopkg.in/gomail.v2"
 )
 
-type SMTP struct {
-	Host     string `mapstructure:"host"`
-	Port     int    `mapstructure:"port"`
-	Username string `mapstructure:"username"`
-	Password string `mapstructure:"password"`
-}
+// NewGomail creates a new gomail client
+func NewGomail(viper *viper.Viper, log *logrus.Logger) *g.ImplGomail {
+	dialer := gomail.NewDialer(
+		viper.GetString("SMTP_HOST"),
+		viper.GetInt("SMTP_PORT"),
+		viper.GetString("SMTP_USERNAME"), // fromEmail
+		viper.GetString("SMTP_PASSWORD"),
+	)
 
-func NewGomail(viper *viper.Viper) *gomail.Dialer {
-	smtp := &SMTP{
-		Host:     viper.GetString("SMTP_HOST"),
-		Port:     viper.GetInt("SMTP_PORT"),
-		Username: viper.GetString("SMTP_USERNAME"),
-		Password: viper.GetString("SMTP_PASSWORD"),
+	if _, err := dialer.Dial(); err != nil {
+		log.Fatalf("failed to connect to SMTP server: %v", err)
 	}
 
-	return gomail.NewDialer(smtp.Host, smtp.Port, smtp.Username, smtp.Password)
+	return g.NewGomail(dialer, viper.GetString("SMTP_USERNAME"))
 }
-

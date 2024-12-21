@@ -1,6 +1,9 @@
 package helper
 
-import "strings"
+import (
+	"strings"
+	"time"
+)
 
 type TicketType struct {
 	Short string
@@ -37,4 +40,8 @@ func TicketUpper(s string) TicketType {
 	default:
 		return TicketType{}
 	}
+}
+
+func FormatDate(date time.Time) string {
+	return date.UTC().Add(time.Hour * 7).Format(time.RFC3339)
 }

@@ -47,23 +47,3 @@ func AuthMiddleware(jwtService jwt.JWTService) echo.MiddlewareFunc {
 		}
 	}
 }
-
-func RBACMiddleware(allowedRoles []string) echo.MiddlewareFunc {
-	return func(next echo.HandlerFunc) echo.HandlerFunc {
-		return func(c echo.Context) error {
-			errMessage := func(message string) error {
-				return echo.NewHTTPError(http.StatusUnauthorized, model.NewErrorResponse[any](http.StatusUnauthorized, message))
-			}
-			claims := c.Get("claims").(*jwt.JWTClaims) 
-			userRole:= claims.Role            
-			for _, role := range allowedRoles {
-				if userRole == role {
-					return next(c)
-				}
-			}
-
-			return errMessage("Permission denied")
-		}
-	}
-}
-
